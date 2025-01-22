@@ -1,0 +1,33 @@
+//connection
+
+String url = "jdbc:postgresql://localhost:5432/bankdb";
+String user = "postgres";
+String password = "password";
+Connection connection = DriverManager.getConnection(url, user, password);
+
+//updating
+
+String updateBalanceSQL = "UPDATE accounts SET balance = balance + ? WHERE account_id = ?";
+PreparedStatement pstmt = connection.prepareStatement(updateBalanceSQL);
+pstmt.setBigDecimal(1, new BigDecimal(amount)); // Positive for deposits, negative for withdrawals
+pstmt.setInt(2, accountId);
+pstmt.executeUpdate();
+
+//inserting
+
+String insertDepositSQL = "INSERT INTO transactions (account_id, transaction_type, amount) VALUES (?, ?, ?)";
+PreparedStatement pstmt = connection.prepareStatement(insertDepositSQL);
+pstmt.setInt(1, accountId);
+pstmt.setString(2, "deposit");
+pstmt.setBigDecimal(3, new BigDecimal(amount));
+pstmt.executeUpdate();
+
+//select
+
+String selectBalanceSQL = "SELECT balance FROM accounts WHERE account_id = ?";
+PreparedStatement pstmt = connection.prepareStatement(selectBalanceSQL);
+pstmt.setInt(1, accountId);
+ResultSet rs = pstmt.executeQuery();
+if (rs.next()) {
+    BigDecimal balance = rs.getBigDecimal("balance");
+}
